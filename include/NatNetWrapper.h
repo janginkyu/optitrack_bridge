@@ -22,6 +22,10 @@
 #include <NatNetClient.h>
 #include <LinearKalmanFilter.h>
 
+#include <tf2/LinearMath/Quaternion.h>
+#include <tf2_ros/transform_broadcaster.h>
+#include <geometry_msgs/TransformStamped.h>
+
 class NatNetWrapper {
 public:
     NatNetWrapper();
@@ -39,6 +43,7 @@ private:
     ros::Publisher pub_unlabeled_marker_pose_array;
     std::vector<std::unique_ptr<LinearKalmanFilter>> linearKalmanFilters;
     std::vector<int> model_ids;
+    std::vector<std::string> model_names;
     std::string prefix;
     std::string frame_id;
     bool show_latency;
@@ -61,5 +66,7 @@ private:
     char g_discoveredMulticastGroupAddr[kNatNetIpv4AddrStrLenMax] = NATNET_DEFAULT_MULTICAST_ADDRESS;
     int g_analogSamplesPerMocapFrame = 0;
     sServerDescription g_serverDescription;
+    
+    tf2_ros::TransformBroadcaster br_;
 };
 

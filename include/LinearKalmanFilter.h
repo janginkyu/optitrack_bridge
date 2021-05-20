@@ -10,9 +10,12 @@
 
 #define PUBLISH_RAW_TWIST false
 
-#define n 6
-#define m 3
+namespace LinearKalman {
+    const int n = 6;
+    const int m = 3;
+}
 
+using namespace LinearKalman;
 using namespace Eigen;
 typedef Matrix<double, n, n> FMatrix;
 typedef Matrix<double, n, m> GMatrix;
@@ -59,6 +62,5 @@ private:
     void update(const double &dt, const geometry_msgs::PoseStamped& msg);
     RMatrix computeR();
 };
-
 
 #endif //OPTITRACK_BRIDGE_LINEARKALMANFILTER_H

@@ -11,12 +11,14 @@ include_directories(${EIGEN3_INCLUDE_DIR})
 find_package(catkin REQUIRED COMPONENTS
   roscpp
   std_msgs
+  tf2_ros
+  tf2
 )
 
 catkin_package(
   INCLUDE_DIRS include
 #  LIBRARIES optitrack_bridge
-  CATKIN_DEPENDS roscpp std_msgs
+  CATKIN_DEPENDS roscpp std_msgs tf2_ros
 #  DEPENDS system_lib
 )
 

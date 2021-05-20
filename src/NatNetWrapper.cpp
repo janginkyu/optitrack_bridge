@@ -21,6 +21,7 @@ NatNetWrapper::NatNetWrapper(){
     nh.param<bool>("publish_unlabeled_marker_pose_array", publish_unlabeled_marker_pose_array, false);
     prefix = "/optitrack/";
     verbose_level = Verbosity_Error + 1; // Do not listen NatNetlib message
+
 }
 
 int NatNetWrapper::run() {
@@ -151,6 +152,7 @@ int NatNetWrapper::run() {
 //                printf("Parent Offset : %3.2f,%3.2f,%3.2f\n", pRB->offsetx, pRB->offsety, pRB->offsetz);
 
                 model_ids.emplace_back(pRB->ID);
+                model_names.emplace_back(std::string(pRB->szName));
                 if(publish_with_twist){
                     pubs_vision_odom.push_back(nh.advertise<nav_msgs::Odometry>(prefix + std::string(pRB->szName) + "/odometry", 10));
                     linearKalmanFilters.emplace_back(std::make_unique<LinearKalmanFilter>());
@@ -416,6 +418,20 @@ void NATNET_CALLCONV NatNetWrapper::DataHandler(sFrameOfMocapData* data, void* p
                 vision_pose.pose.orientation.y = data->RigidBodies[i].qy;
                 vision_pose.pose.orientation.z = data->RigidBodies[i].qz;
                 vision_pose.pose.orientation.w = data->RigidBodies[i].qw;
+
+                geometry_msgs::TransformStamped transform_stamped;
+                transform_stamped.header.stamp = ros::Time::now();
+                transform_stamped.header.frame_id = frame_id;
+                transform_stamped.child_frame_id = model_names[i];
+                transform_stamped.transform.translation.x = data->RigidBodies[i].x;
+                transform_stamped.transform.translation.y = data->RigidBodies[i].y;
+                transform_stamped.transform.translation.z = data->RigidBodies[i].z;
+                transform_stamped.transform.rotation.x = data->RigidBodies[i].qx;
+                transform_stamped.transform.rotation.y = data->RigidBodies[i].qy;
+                transform_stamped.transform.rotation.z = data->RigidBodies[i].qz;
+                transform_stamped.transform.rotation.w = data->RigidBodies[i].qw;
+                br_.sendTransform(transform_stamped);
+
                 if (publish_with_twist) {
                     nav_msgs::Odometry vision_odom = linearKalmanFilters[i].get()->pose_cb(vision_pose);
                     vision_odom.header.frame_id = frame_id;
